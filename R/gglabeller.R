@@ -399,7 +399,7 @@ gglabeller <- function(gg,
                            function(x) gsub("\\\"","'",deparse(x) ))
         parameters <- list(nudge_x = input$nudge_x,
                            nudge_y = input$nudge_y,
-                           segment.color = if (nchar(input$segment.color) > 0) input$segment.color else "NULL",
+                           segment.color = if (nchar(input$segment.color) > 0) single_q(input$segment.color) else "NULL",
                            segment.size = input$segment.size,
                            segment.alpha = if (!is.na(input$segment.alpha)) input$segment.alpha else "NULL",
                            min.segment.length = unit_to_string(input$min.segment.length,input$min.segment.length_units),
@@ -417,7 +417,7 @@ gglabeller <- function(gg,
                            function(x) gsub("\\\"","'",deparse(x) ))
         parameters <- list(nudge_x = input$nudge_x,
                            nudge_y = input$nudge_y,
-                           segment.color = if (nchar(input$segment.color) > 0) input$segment.color else "NULL",
+                           segment.color = if (nchar(input$segment.color) > 0) single_q(input$segment.color) else "NULL",
                            segment.size = input$segment.size,
                            segment.alpha = if (!is.na(input$segment.alpha)) input$segment.alpha else "NULL",
                            min.segment.length = unit_to_string(input$min.segment.length,input$min.segment.length_units),
@@ -447,9 +447,12 @@ gglabeller <- function(gg,
 
       mapping_string <- paste0("mapping = aes(",
                                paste(names(mapping), mapping,
-                                     sep = " = ", collapse = ","),
+                                     sep = " = ", collapse = ", "),
                                ")")
-      recode <- paste0(recode,
+      recode <- paste0("set.seed(",
+                       seed,
+                       ");",
+                       recode,
                        "gglabeller_data[",
                        condense_ix(ix$rows),
                        ",'",
@@ -464,11 +467,10 @@ gglabeller <- function(gg,
                        params_string,
                        ")")
 
+      ix_out <- seq_len(nrow(data))
+      ix_out <- ix_out[!(ix_out %in% ix$rows)]
       stopApp(list(plot = out,
-                   parameters = parameters,
-                   ix = ix$rows,
-                   seed = seed,
-                   call = thecall,
+                   ix = ix_out,
                    code = recode))
     })
   }

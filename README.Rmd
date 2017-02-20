@@ -1,0 +1,68 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, echo = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "README-"
+)
+
+set.seed(20)
+```
+
+# gglabeller
+
+R package with one main function, gglabeller, which launches a simple shiny gadget that enables selecting points on a ggplot to label. Label positions are determined using the fantastic [ggrepel](www.github.com/slowkow/ggrepel) package.
+
+First create a plot using ggplot2 and save it to a variable:
+
+```{r}
+library(gglabeller)
+library(ggplot2)
+library(ggrepel)
+
+p <- ggplot(mtcars, aes(x = wt, y = mpg)) + geom_point() + 
+            theme_classic(base_size = 18)
+```
+
+Pass the variable to gglabeller:
+
+```{r, eval = FALSE}
+gglabeller_example <- gglabeller(p, aes(label = rownames(mtcars)))
+```
+
+Running gglabeller will open a shiny gadget in the RStudio viewer pane (or in the browser if running R in the terminal). You can click or brush over points to select them for labelling. Clicking over an already labelled point or brushing over a set of points that have all been labelled will remove the labels.
+
+![](gglabeller_demo1.gif)
+
+You can also modify the ggrepel parameters via the "Parameters" tab in the app.  
+
+![](gglabeller_demo2.gif)
+
+After clicking done, the returned object is a list storing the resulting plot and a code snippet for recreating the plot de novo.
+
+```{r, include = FALSE}
+data(gglabeller_example)
+```
+
+We can make a static version of the plot to save:
+
+```{r plot_plot}
+gglabeller_example$plot
+```
+
+The code snippet can be useful if you want to incorporate the plot creation into a reproducible script:
+
+```{r}
+gglabeller_example$code
+```
+
+```{r, code_plot}
+library(magrittr)
+gglabeller_example$code %>% parse(text = .) %>% eval()
+```
+
