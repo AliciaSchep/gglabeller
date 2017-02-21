@@ -10,21 +10,38 @@ gglabeller(gg, mapping = gg$mapping, data = gg$data, geom = c("text",
 \arguments{
 \item{gg}{ggplot object}
 
+\item{mapping}{aesthetics mapping, from \code{\link[ggplot2]{aes}}}
+
+\item{data}{data.frame with data for plotting}
+
 \item{geom}{geom to use -- "text" or "label"}
 
 \item{...}{additional arguments to pass to \code{\link[ggrepel]{geom_text_repel}} or
 \code{\link[ggrepel]{geom_label_repel}}}
 
-\item{width}{width of plot}
+\item{width}{width of plot, as percent or pixels}
 
-\item{height}{height of plot}
+\item{height}{height of plot, as percent or pixels}
+}
+\value{
+Upon clicking the "Done" button, the gadget returns a list with three elements:
+\describe{
+\item{plot}{The plot itself}
+\item{ix}{The indices of the rows of the data used for labelling}
+\item{code}{a character vector with a code snippet for recreating the plot reproducibly}
+}
 }
 \description{
 Shiny gadget for selecting points to label in a ggplot object
 }
 \details{
-Uses ggrepel for controlling position of labels. Parameters tab of
-widget can be used to adjust ggrepel parameters.
+Click on a point or brush over a set of points to label them. Clicking
+on a labelled point or brushing over a set of points that are all labelled
+will remove the labels. Brushing over some points that are labelled and some
+that are not will add labels to the ones that are not.
+
+gglabeller sses ggrepel for controlling the position of labels. The parameters tab
+can be used to adjust ggrepel parameters.
 }
 \examples{
 
@@ -32,7 +49,7 @@ if (interactive()){
 
   p <- ggplot(mtcars, aes(x = wt, y = mpg)) + geom_point()
 
-  gglabeller(p, mapping = aes(label = rownames(mtcars)))
+  plabelled <- gglabeller(p, mapping = aes(label = rownames(mtcars)))
 
 }
 }

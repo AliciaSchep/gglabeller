@@ -1,6 +1,11 @@
 
-
-
+#' gglabeller_example
+#'
+#' Example output from gglabeller function
+#'
+#' @format list with three elements: the plot, the indices for rows of data
+#' that are labelled, and the code to regenerate the plot
+"gglabeller_example"
 
 #' @import shiny miniUI ggrepel ggplot2
 gglabeller_ui <- function(geom, width, height,...){
@@ -147,66 +152,43 @@ gglabeller_ui <- function(geom, width, height,...){
     ))
 }
 
-
-text_ui <- function(width, height, ...){
-  defaults <- modifyList(formals(geom_label_repel), list(...))
-
-  miniPage(
-    gadgetTitleBar("gglabeller: Label points by selecting or brushing"),
-    miniTabstripPanel(
-      miniTabPanel("Plot", icon = icon("area-chart"),
-                   miniContentPanel(
-                     plotOutput("plot", click = "plot_click",
-                                brush = brushOpts("plot_brush",resetOnNew = TRUE),
-                                width = width,
-                                height = height)
-                   ),
-                   miniButtonBlock(actionButton("all", "Label All"),
-                                   actionButton("remove", "Remove All"))
-      ),
-      miniTabPanel("Parameters", icon = icon("sliders"),
-                   miniContentPanel(
-                     selectizeInput("params",
-                                    "geom_text_repel parameter",
-                                    choices = c("nudge_x",
-                                                "nudge_y",
-                                                "direction")),
-                     conditionalPanel("input.params == 'nudge_x'",
-                                      numericInput("nudge_x",NULL,value = defaults$nudge_x)),
-                     conditionalPanel("input.params == 'nudge_y'",
-                                      numericInput("nudge_y",NULL,value = defaults$nudge_y)),
-                    conditionalPanel("input.params == 'direction'",
-                                      selectizeInput("direction",NULL,
-                                                     choices = c("both","x","y"),
-                                                     selected =  match.arg(defaults$direction,c("both","x","y"))))
-                   ))
-    ))}
-
-
 #' gglabeller
 #'
 #' Shiny gadget for selecting points to label in a ggplot object
 #'
-#' Uses ggrepel for controlling position of labels. Parameters tab of
-#' widget can be used to adjust ggrepel parameters.
+#' Click on a point or brush over a set of points to label them. Clicking
+#' on a labelled point or brushing over a set of points that are all labelled
+#' will remove the labels. Brushing over some points that are labelled and some
+#' that are not will add labels to the ones that are not.
+#'
+#' gglabeller sses ggrepel for controlling the position of labels. The parameters tab
+#' can be used to adjust ggrepel parameters.
 #' @param gg ggplot object
-#' @param mapping
-#' @param data
+#' @param mapping aesthetics mapping, from \code{\link[ggplot2]{aes}}
+#' @param data data.frame with data for plotting
 #' @param geom geom to use -- "text" or "label"
 #' @param ... additional arguments to pass to \code{\link[ggrepel]{geom_text_repel}} or
 #' \code{\link[ggrepel]{geom_label_repel}}
-#' @param width width of plot
-#' @param height height of plot
+#' @param width width of plot, as percent or pixels
+#' @param height height of plot, as percent or pixels
+#' @return Upon clicking the "Done" button, the gadget returns a list with three elements:
+#' \describe{
+#' \item{plot}{The plot itself}
+#' \item{ix}{The indices of the rows of the data used for labelling}
+#' \item{code}{a character vector with a code snippet for recreating the plot reproducibly}
+#' }
 #' @export
 #' @author Alicia Schep
 #' @import ggrepel ggplot2 shiny miniUI
+#' @importFrom stats runif
+#' @importFrom utils modifyList
 #' @examples
 #'
 #' if (interactive()){
 #'
 #'   p <- ggplot(mtcars, aes(x = wt, y = mpg)) + geom_point()
 #'
-#'   gglabeller(p, mapping = aes(label = rownames(mtcars)))
+#'   plabelled <- gglabeller(p, mapping = aes(label = rownames(mtcars)))
 #'
 #' }
 gglabeller <- function(gg,

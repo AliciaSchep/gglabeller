@@ -1,6 +1,6 @@
 Package: gglabeller
 Type: Package
-Title: Shiny gadget for labelling ggplots
+Title: Shiny gadget for labelling points in ggplots
 Version: 0.1.0
 Author: Alicia Schep
 Maintainer: Alicia Schep <aschep@gmail.com>
@@ -8,11 +8,15 @@ Description: The gglabeller package has only one exported function, gglabeller,
     which generates a shiny gadget for interactively selecting points to
     label. It positions labels using the ggrepel package.
 License: MIT + file LICENSE
+Depends: 
+  R (>= 3.3)
 Imports:
   shiny (>= 0.13),
   miniUI (>= 0.1.1),
   ggplot2 (>= 2.2.0),
-  ggrepel (>= 0.6.8)
+  ggrepel (>= 0.6.8),
+  stats,
+  utils
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.0.1

@@ -5,6 +5,19 @@ gglabeller
 
 R package with one main function, gglabeller, which launches a simple shiny gadget that enables selecting points on a ggplot to label. Label positions are determined using the fantastic [ggrepel](www.github.com/slowkow/ggrepel) package.
 
+Installation
+============
+
+At the moment, depends on development version of ggrepel. Installation via devtools:
+
+``` r
+devtools::install_github("slowkow/ggrepel") # Install development version
+devtools::install_github("AliciaSchep/gglabeller") 
+```
+
+Usage
+=====
+
 First create a plot using ggplot2 and save it to a variable:
 
 ``` r
