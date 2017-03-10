@@ -14,7 +14,7 @@ Imports:
   shiny (>= 0.13),
   miniUI (>= 0.1.1),
   ggplot2 (>= 2.2.0),
-  ggrepel (>= 0.6.8),
+  ggrepel (>= 0.6.9),
   stats,
   utils
 Encoding: UTF-8

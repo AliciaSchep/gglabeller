@@ -70,4 +70,4 @@ gglabeller_example$code %>% parse(text = .) %>% eval()
 Limitations
 ===========
 
-Currently this app doesn't seem to work with facetted plots. Requires points to label; not targetted at line plots or other non-point plots.
+Requires points to label; not targetted at line plots or other non-point plots.
