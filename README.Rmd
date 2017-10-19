@@ -20,10 +20,9 @@ R package with one main function, gglabeller, which launches a simple shiny gadg
 
 # Installation
 
-At the moment, depends on development version of ggrepel. Installation via devtools:
+Installation via devtools:
 
 ```{r, eval = FALSE}
-devtools::install_github("slowkow/ggrepel") # Install development version
 devtools::install_github("AliciaSchep/gglabeller") 
 ```
 
@@ -75,6 +74,19 @@ gglabeller_example$code
 ```{r, code_plot}
 library(magrittr)
 gglabeller_example$code %>% parse(text = .) %>% eval()
+```
+
+You can also just get out the indices of the lbelled points:
+
+
+```{r}
+gglabeller_example$ix
+```
+
+This can be used to get out the labels themselves.
+
+```{r}
+rownames(mtcars)[gglabeller_example$ix]
 ```
 
 # Limitations
