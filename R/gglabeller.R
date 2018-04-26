@@ -8,8 +8,8 @@
 "gglabeller_example"
 
 #' @import shiny miniUI ggrepel ggplot2
-gglabeller_ui <- function(geom, width, height,...){
-
+gglabeller_ui <- function(geom, width, height, ...){
+  
   if (geom == "label"){
     defaults <- modifyList(formals(geom_label_repel), list(...))
   } else{
@@ -224,23 +224,23 @@ gglabeller <- function(gg,
       label <- "gglabeller_labels"
       mapping$label <- as.name(label)
     }
-  } else if (is.call(mapping$label)){
+  } else if (is.call(mapping$label)) {
     recode <- paste0(recode, "gglabeller_data$gglabeller_labels <- ",
                      gsub("\\\"","'",deparse(mapping$label)),
                            "; ")
     labels <- eval(mapping$label)
-    if (length(labels) != nrow(data)){
+    if (length(labels) != nrow(data)) {
       stop("labels don't match number of rows of data")
     }
     data$gglabeller_labels <- labels
     label <- "gglabeller_labels"
     mapping$label <- as.name(label)
-  } else if (is.atomic(mapping$label)){
+  } else if (is.atomic(mapping$label)) {
     recode <- paste0(recode, "gglabeller_data$gglabeller_labels <- c(",
                            paste(mapping$label,sep = ", "),
                            "); ")
     labels <- mapping$label
-    if (length(labels) != nrow(data)){
+    if (length(labels) != nrow(data)) {
       stop("labels don't match number of rows of data")
     }
     data$gglabeller_labels <- labels
@@ -254,6 +254,14 @@ gglabeller <- function(gg,
   seed <- as.integer(runif(1) * 10e6)
 
   ui <- gglabeller_ui(geom,width,height,...)
+  
+  dot_args <- list(...)
+  if (geom == "label"){
+    dot_dot_args <- dot_args[which(!(names(dot_args) %in% names(formals(geom_label_repel))))]
+  } else {
+    dot_dot_args <- dot_args[which(!(names(dot_args) %in% names(formals(geom_text_repel))))]
+  }
+  
 
   # Server side
   server <- function(input, output, session) {
@@ -269,7 +277,7 @@ gglabeller <- function(gg,
 
     repel_geom <- reactive({
       if (geom == "label"){
-        geom_label_repel(mapping = mapping,
+        geom_label_args <- c(alist(mapping = mapping,
                        data = subset_data(),
                        nudge_x = input$nudge_x,
                        nudge_y = input$nudge_y,
@@ -293,9 +301,11 @@ gglabeller <- function(gg,
                        label.padding = unit(input$label.padding,
                                             units = input$label.padding_units),
                        label.r = unit(input$label.r, units = input$label.r_units),
-                       direction = input$direction)
+                       direction = input$direction),
+                       dot_dot_args)
+        do.call(geom_label_repel, geom_label_args)
       } else{
-        geom_text_repel(mapping = mapping,
+        geom_text_args <- c(alist(mapping = mapping,
                         data = subset_data(),
                         nudge_x = input$nudge_x,
                         nudge_y = input$nudge_y,
@@ -315,7 +325,9 @@ gglabeller <- function(gg,
                                            units = input$box.padding_units),
                         point.padding = unit(input$point.padding,
                                              units = input$point.padding_units),
-                        direction = input$direction)
+                        direction = input$direction),
+                        dot_dot_args)
+        do.call(geom_text_repel, geom_text_args)
       }
 
     })
@@ -377,32 +389,34 @@ gglabeller <- function(gg,
       }
 
       if (geom == "text"){
-        defaults <- lapply(formals(geom_text_repel),
-                           function(x) gsub("\\\"","'",deparse(x) ))
+        defaults <- formals_to_string(formals(geom_text_repel))
         parameters <- list(nudge_x = input$nudge_x,
                            nudge_y = input$nudge_y,
                            segment.color = if (nchar(input$segment.color) > 0) single_q(input$segment.color) else "NULL",
                            segment.size = input$segment.size,
                            segment.alpha = if (!is.na(input$segment.alpha)) input$segment.alpha else "NULL",
-                           min.segment.length = unit_to_string(input$min.segment.length,input$min.segment.length_units),
+                           min.segment.length = if (input$min.segment.length_units == "lines") input$min.segment.length 
+                                else unit_to_string(input$min.segment.length, input$min.segment.length_units),
                            parse = input$parse,
                            force = input$force,
                            max.iter = input$max.iter,
                            stat = paste0("'",input$stat,"'"),
                            xlim = lim_to_string(input$xlim_min,input$xlim_max),
                            ylim = lim_to_string(input$ylim_min,input$ylim_max),
-                           box.padding = unit_to_string(input$box.padding, input$box.padding_units),
-                           point.padding = unit_to_string(input$point.padding, input$point.padding_units),
+                           box.padding = if (input$box.padding_units == "lines") input$box.padding 
+                                else unit_to_string(input$box.padding, input$box.padding_units),
+                           point.padding = if (input$point.padding_units == "lines") input$point.padding 
+                                else unit_to_string(input$point.padding, input$point.padding_units),
                            direction = single_q(input$direction))
       } else{
-        defaults <- lapply(formals(geom_label_repel),
-                           function(x) gsub("\\\"","'",deparse(x) ))
+        defaults <- formals_to_string(formals(geom_label_repel))
         parameters <- list(nudge_x = input$nudge_x,
                            nudge_y = input$nudge_y,
                            segment.color = if (nchar(input$segment.color) > 0) single_q(input$segment.color) else "NULL",
                            segment.size = input$segment.size,
                            segment.alpha = if (!is.na(input$segment.alpha)) input$segment.alpha else "NULL",
-                           min.segment.length = unit_to_string(input$min.segment.length,input$min.segment.length_units),
+                           min.segment.length = if (input$min.segment.length_units == "lines") input$min.segment.length 
+                                else unit_to_string(input$min.segment.length, input$min.segment.length_units),
                            parse = input$parse,
                            force = input$force,
                            max.iter = input$max.iter,
@@ -410,15 +424,19 @@ gglabeller <- function(gg,
                            stat = paste0("'",input$stat,"'"),
                            xlim = lim_to_string(input$xlim_min,input$xlim_max),
                            ylim = lim_to_string(input$ylim_min,input$ylim_max),
-                           box.padding = unit_to_string(input$box.padding, input$box.padding_units),
-                           point.padding = unit_to_string(input$point.padding, input$point.padding_units),
-                           label.padding = unit_to_string(input$label.padding, input$label.padding_units),
-                           label.r = unit_to_string(input$label.r, input$label.r_units),
+                           box.padding = if (input$box.padding_units == "lines") input$box.padding 
+                              else unit_to_string(input$box.padding, input$box.padding_units),
+                           point.padding = if (input$point.padding_units == "lines") input$point.padding 
+                              else unit_to_string(input$point.padding, input$point.padding_units),
+                           label.padding = if (input$label.padding_units == "lines") input$label.padding 
+                              else unit_to_string(input$label.padding, input$label.padding_units),
+                           label.r = if (input$label.r_units == "lines") input$label.r 
+                              else unit_to_string(input$label.r, input$label.r_units),
                            direction = single_q(input$direction))
 
       }
       non_default <- sapply(names(parameters), function(x) parameters[[x]] != defaults[[x]])
-      parameters <- parameters[non_default]
+      parameters <- c(parameters[non_default], formals_to_string(dot_dot_args))
       if ("direction" %in% names(parameters) && parameters$direction == "'both'")
         parameters$direction <- NULL
 
@@ -471,6 +489,10 @@ lim_to_string <- function(x1,x2){
 
 single_q <- function(x){
   paste0("'",x,"'")
+}
+
+formals_to_string <- function(l){
+  lapply(l,function(x) gsub("\\\"","'",deparse(x) ))
 }
 
 

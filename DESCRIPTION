@@ -1,7 +1,7 @@
 Package: gglabeller
 Type: Package
 Title: Shiny gadget for labelling points in ggplots
-Version: 0.1.0
+Version: 0.2.0
 Author: Alicia Schep
 Maintainer: Alicia Schep <aschep@gmail.com>
 Description: The gglabeller package has only one exported function, gglabeller,
