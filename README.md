@@ -8,6 +8,12 @@ shiny gadget that enables selecting points on a ggplot to label. Label
 positions are determined using the fantastic
 [ggrepel](www.github.com/slowkow/ggrepel) package.
 
+Note: gglabeller has been recently updated to be compatible with ggplot2
+version 3.0 – if encountering issues with previous versions of
+gglabeller after updating ggplot2, please try updating gglabeller to
+version 0.3.0 or higher\! (and gglabeller 0.3.0+ now requires ggplot2
+\>= 3.0)
+
 # Installation
 
 Installation via devtools:

@@ -209,47 +209,19 @@ gglabeller <- function(gg,
   } else{
     recode <- paste0("gglabeller_data <- ",call_list$gg,"$data; ")
   }
-  if (is.name(mapping$label)){
-    if (as.character(mapping$label) %in% colnames(data)){
-      label = as.character(mapping$label)
-    } else{
-      recode <- paste0(recode, "gglabeller_data$gglabeller_labels <- ",
-                               mapping$label,
-                               "; ")
-      labels <- eval(mapping$label)
-      if (length(labels) != nrow(data)){
-        stop("labels don't match number of rows of data")
-      }
-      data$gglabeller_labels <- labels
-      label <- "gglabeller_labels"
-      mapping$label <- as.name(label)
-    }
-  } else if (is.call(mapping$label)) {
-    recode <- paste0(recode, "gglabeller_data$gglabeller_labels <- ",
-                     gsub("\\\"","'",deparse(mapping$label)),
-                           "; ")
-    labels <- eval(mapping$label)
-    if (length(labels) != nrow(data)) {
-      stop("labels don't match number of rows of data")
-    }
-    data$gglabeller_labels <- labels
-    label <- "gglabeller_labels"
-    mapping$label <- as.name(label)
-  } else if (is.atomic(mapping$label)) {
-    recode <- paste0(recode, "gglabeller_data$gglabeller_labels <- c(",
-                           paste(mapping$label,sep = ", "),
-                           "); ")
-    labels <- mapping$label
-    if (length(labels) != nrow(data)) {
-      stop("labels don't match number of rows of data")
-    }
-    data$gglabeller_labels <- labels
-    label <- "gglabeller_labels"
-    mapping$label <- as.name(label)
-  } else{
-    stop("Invalid mapping argument")
+  
+  if (!(rlang::quo_text(mapping$label) %in% colnames(data))) {
+     recode <- paste0(recode, "gglabeller_data$gglabeller_labels <- ", rlang::quo_text(mapping$label),"; ")
+  } else {
+    recode <- paste0(recode, "gglabeller_data$gglabeller_labels <- gglabeller_data$", rlang::quo_text(mapping$label),"; ")
   }
-
+  
+  labels <- rlang::eval_tidy(mapping$label, data = data)
+  data$gglabeller_labels <- labels
+  label <- "gglabeller_labels"
+  mapping$label <- rlang::new_quosure(rlang::sym("gglabeller_labels"), 
+                                      env = parent.frame())
+  
   # random seed
   seed <- as.integer(runif(1) * 10e6)
 
@@ -339,7 +311,7 @@ gglabeller <- function(gg,
       if (length(ix$rows) < nrow(data)){
         out <- out + repel_geom()
       }
-
+      
       out
     })
 
@@ -446,7 +418,7 @@ gglabeller <- function(gg,
       if (nchar(params_string) > 0) params_string <- paste0(", ", params_string)
 
       mapping_string <- paste0("mapping = aes(",
-                               paste(names(mapping), mapping,
+                               paste(names(mapping), vapply(mapping, rlang::quo_text, ""),
                                      sep = " = ", collapse = ", "),
                                ")")
       recode <- paste0("set.seed(",
