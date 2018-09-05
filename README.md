@@ -112,3 +112,10 @@ gglabeller(p, aes(label = rownames(mtcars)),  fontface = "bold", color = "red")
 
 Requires points to label; not targetted at line plots or other non-point
 plots.
+
+Relies on shiny’s nearPoints and brushedPoints functions, which require
+that the ‘x’ and ‘y’ aesthetics be mapped to a column name and not a
+transformation. For example, `ggplot(mtcars, aes(x = log(wt), y = mpg))
++ geom_point()` will not work because the x aesthetic is mapped to a
+transformation of the column. For such a plot, one could modify the
+input first to create a column with the log of the value.
