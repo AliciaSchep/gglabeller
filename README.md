@@ -6,7 +6,7 @@
 R package with one main function, gglabeller, which launches a simple
 shiny gadget that enables selecting points on a ggplot to label. Label
 positions are determined using the fantastic
-[ggrepel](www.github.com/slowkow/ggrepel) package.
+[ggrepel](https://github.com/slowkow/ggrepel) package.
 
 Note: gglabeller has been recently updated to be compatible with ggplot2
 version 3.0 – if encountering issues with previous versions of
